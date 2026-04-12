@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How Meaningful Is Your Day? | America 2003-2024</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --mag: #c25e9b;
+            --mag-light: #f4dce9;
+            --mag-bg: #fdf5f9;
+            --black: #111;
+            --white: #fff;
+            --g50: #fafafa;
+            --g100: #f5f5f5;
+            --g200: #e5e5e5;
+            --g300: #d4d4d4;
+            --g400: #a3a3a3;
+            --g500: #737373;
+            --g700: #404040;
+            --g900: #171717;
+            --green: #16a34a;
+            --red: #dc2626;
+            --grid: rgba(0,0,0,0.05);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--g50);
+            color: var(--black);
+            line-height: 1.6;
+            font-size: 15px;
+        }
+
+        /* ── Toolbar ── */
+        .toolbar {
+            position: sticky; top: 0; z-index: 200;
+            background: var(--white);
+            border-bottom: 1px solid var(--g200);
+            padding: 0.5rem 1.5rem;
+            display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap;
+        }
+        .toolbar label { font-size: 0.7rem; color: var(--g500); text-transform: uppercase; font-weight: 600; letter-spacing: 0.3px; }
+        .toolbar select {
+            background: var(--white); border: 1px solid var(--g300); color: var(--black);
+            border-radius: 6px; padding: 0.3rem 0.5rem; font-size: 0.78rem; font-family: inherit;
+        }
+        .toolbar select:focus { outline: none; border-color: var(--mag); }
+        .toolbar .spacer { flex: 1; }
+        .toolbar button {
+            background: var(--mag); color: var(--white); border: none;
+            border-radius: 6px; padding: 0.35rem 0.9rem; font-size: 0.75rem; font-weight: 600; cursor: pointer;
+        }
+        .toolbar button:hover { background: #a84d85; }
+        .toolbar button.sec { background: transparent; border: 1px solid var(--g300); color: var(--g700); }
+        .toolbar button.sec:hover { border-color: var(--mag); color: var(--mag); }
+        .compare-badge {
+            display: inline-flex; align-items: center; gap: 0.3rem;
+            background: var(--mag-bg); border: 1px solid var(--mag-light);
+            border-radius: 20px; padding: 0.15rem 0.6rem; font-size: 0.7rem; color: var(--mag);
+        }
+        .compare-badge .x { cursor: pointer; color: var(--red); font-weight: 700; margin-left: 0.2rem; }
+
+        @media print { .toolbar { display: none; } .card { page-break-inside: avoid; } }
+
+        /* ── Hero ── */
+        .hero {
+            background: var(--white);
+            border-bottom: 1px solid var(--g200);
+            text-align: center;
+            padding: 1.5rem 1.5rem 4rem;
+        }
+        .hero h1 { font-size: 1.8rem; font-weight: 800; color: var(--black); margin-bottom: 0.3rem; }
+        .hero h1 span { color: var(--mag); }
+        .hero .lead {
+            font-size: 1rem; color: var(--g700);
+            max-width: 640px; margin: 0 auto 0.8rem;
+        }
+        .hero .data-note {
+            font-size: 0.72rem; color: var(--g400);
+        }
+
+        /* ── Big Number Strip ── */
+        .big-numbers {
+            max-width: 900px; margin: -2.5rem auto 0;
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;
+            padding: 0 1.5rem; position: relative; z-index: 1;
+        }
+        .bn {
+            background: var(--white); border: 1px solid var(--g200); border-radius: 12px;
+            padding: 0.9rem 0.8rem; text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .bn .num { font-size: 1.8rem; font-weight: 800; color: var(--mag); }
+        .bn .lbl { font-size: 0.75rem; color: var(--g700); margin-top: 0.1rem; }
+        .bn .exp { font-size: 0.65rem; color: var(--g400); margin-top: 0.2rem; line-height: 1.35; }
+
+        /* ── Main Layout ── */
+        .main { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+        /* ── Narrative blocks ── */
+        .story {
+            margin-bottom: 3rem;
+        }
+        .story-header {
+            display: flex; align-items: center; gap: 0.8rem;
+            margin-bottom: 0.5rem;
+        }
+        .story-header img { width: 36px; height: 36px; object-fit: contain; }
+        .story-header .tag {
+            font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px;
+            color: var(--mag); font-weight: 700;
+        }
+        .story h2 {
+            font-size: 1.35rem; font-weight: 700; color: var(--black);
+            margin-bottom: 0.3rem;
+        }
+        .story .one-liner {
+            font-size: 0.95rem; color: var(--g500); margin-bottom: 1.2rem;
+        }
+
+        /* ── Cards ── */
+        .card {
+            background: var(--white); border: 1px solid var(--g200); border-radius: 12px;
+            overflow: hidden; margin-bottom: 1.2rem;
+        }
+        .card-body { padding: 1.2rem 1.4rem; }
+        .card-body h3 {
+            font-size: 0.85rem; font-weight: 700; color: var(--black);
+            text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 0.15rem;
+        }
+        .card-body .sub { font-size: 0.75rem; color: var(--g400); margin-bottom: 0.8rem; }
+        .chart-wrap { position: relative; width: 100%; height: 280px; }
+
+        /* ── Sidebar panels ── */
+        .sidebar-panel {
+            background: var(--g50); border-top: 1px solid var(--g200);
+            padding: 1rem 1.4rem;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem;
+        }
+        .sb {
+            padding: 0.6rem 0.8rem;
+            border-left: 3px solid var(--mag-light);
+        }
+        .sb.highlight { border-left-color: var(--mag); background: var(--mag-bg); border-radius: 0 6px 6px 0; }
+        .sb .sb-title {
+            font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.4px;
+            color: var(--mag); font-weight: 700; margin-bottom: 0.2rem;
+        }
+        .sb p { font-size: 0.78rem; color: var(--g700); line-height: 1.5; }
+        .sb strong { color: var(--black); }
+
+        /* Full-width sidebar */
+        .sidebar-panel.full { grid-template-columns: 1fr; }
+
+        /* ── Insight callout ── */
+        .insight-box {
+            background: var(--mag-bg); border: 1px solid var(--mag-light);
+            border-left: 4px solid var(--mag); border-radius: 0 10px 10px 0;
+            padding: 1rem 1.4rem; margin-bottom: 1.2rem;
+            display: flex; align-items: flex-start; gap: 1rem;
+        }
+        .insight-box img { width: 40px; height: 40px; object-fit: contain; flex-shrink: 0; margin-top: 0.1rem; }
+        .insight-box h4 { font-size: 0.85rem; font-weight: 700; color: var(--mag); margin-bottom: 0.2rem; }
+        .insight-box p { font-size: 0.82rem; color: var(--g700); line-height: 1.6; }
+        .insight-box strong { color: var(--black); }
+
+        /* ── Expandable details ── */
+        details {
+            background: var(--white); border: 1px solid var(--g200); border-radius: 10px;
+            margin-bottom: 1rem; overflow: hidden;
+        }
+        details summary {
+            padding: 0.8rem 1.2rem; cursor: pointer;
+            font-size: 0.82rem; font-weight: 600; color: var(--g700);
+            list-style: none; display: flex; align-items: center; gap: 0.5rem;
+        }
+        details summary::before { content: '+'; font-size: 1.1rem; color: var(--mag); font-weight: 700; width: 1.2rem; }
+        details[open] summary::before { content: '-'; }
+        details summary::-webkit-details-marker { display: none; }
+        details .detail-body { padding: 0 1.2rem 1rem; }
+
+        /* ── Tooltips ── */
+        .tip {
+            position: relative; cursor: help;
+            border-bottom: 1px dotted var(--mag);
+            color: var(--mag); font-weight: 600;
+        }
+        .tip .tip-text {
+            display: none; position: fixed; width: 240px;
+            background: var(--g900); color: var(--white); font-size: 0.74rem;
+            padding: 0.55rem 0.75rem; border-radius: 6px; font-weight: 400;
+            line-height: 1.5; z-index: 9999; text-align: left;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+            pointer-events: none;
+        }
+        .tip .tip-text::after {
+            display: none;
+        }
+        /* tooltip show/hide handled by JS for fixed positioning */
+
+        /* ── Data table ── */
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+        .data-table th {
+            text-align: left; color: var(--g500); font-weight: 600;
+            padding: 0.5rem 0.4rem; border-bottom: 2px solid var(--g200);
+            font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.3px;
+        }
+        .data-table td { padding: 0.45rem 0.4rem; border-bottom: 1px solid var(--g100); }
+        .data-table tr:hover td { background: var(--g50); }
+        .pos { color: var(--green); font-weight: 600; }
+        .neg { color: var(--red); font-weight: 600; }
+        .muted { color: var(--g400); }
+
+        /* ── Robustness grid ── */
+        .robust-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 0.6rem; }
+        .r-item {
+            background: var(--g50); border: 1px solid var(--g200); border-radius: 8px;
+            padding: 0.7rem; text-align: center;
+        }
+        .r-item .r-val { font-size: 1.1rem; font-weight: 700; color: var(--green); }
+        .r-item .r-lbl { font-size: 0.62rem; color: var(--g500); text-transform: uppercase; margin-bottom: 0.2rem; font-weight: 600; }
+
+        /* ── Section divider ── */
+        .divider {
+            border-top: 2px solid var(--mag);
+            margin: 2.5rem 0 1.5rem;
+            padding-top: 0.8rem;
+        }
+        .divider .sec-num {
+            font-size: 0.65rem; color: var(--mag); text-transform: uppercase;
+            font-weight: 700; letter-spacing: 0.5px;
+        }
+
+        /* ── Remember box ── */
+        .remember {
+            background: var(--black); color: var(--white);
+            border-radius: 12px; padding: 2rem; text-align: center;
+            margin: 2rem 0;
+        }
+        .remember h3 { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; color: var(--mag-light); margin-bottom: 0.5rem; }
+        .remember p { font-size: 1.2rem; font-weight: 700; max-width: 600px; margin: 0 auto; line-height: 1.5; }
+
+        @media (max-width: 768px) {
+            .big-numbers { grid-template-columns: 1fr; }
+            .sidebar-panel { grid-template-columns: 1fr; }
+            .robust-grid { grid-template-columns: 1fr 1fr; }
+            .hero h1 { font-size: 1.6rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ════════ TOOLBAR ════════ -->
+<div class="toolbar">
+    <label>Years</label>
+    <select id="yrStart"></select>
+    <span style="color:var(--g400)">to</span>
+    <select id="yrEnd"></select>
+    <label style="margin-left:0.6rem">Compare</label>
+    <select id="cmpMode">
+        <option value="">None</option>
+        <option value="meaning_affect">Meaning vs Happiness</option>
+        <option value="with_alone">Together vs Alone</option>
+        <option value="pre_post_covid">Before vs After COVID</option>
+    </select>
+    <span id="cmpBadges"></span>
+    <span class="spacer"></span>
+    <button class="sec" onclick="resetAll()">Reset</button>
+    <button onclick="exportCSV()">Export CSV</button>
+    <button onclick="window.print()">Print</button>
+</div>
+
+<!-- ════════ HERO ════════ -->
+<div class="hero">
+    <h1>Are Americans losing <span>meaningful time</span>?</h1>
+    <p class="lead">
+        We studied 200,000+ daily diaries over 22 years. The answer surprised us:
+        <strong>earning more money doesn't help, but spending time with people does.</strong>
+    </p>
+    <p class="data-note">Source: American Time Use Survey (ATUS) Well-Being Module, 2003 - 2024</p>
+</div>
+
+<!-- ════════ BIG NUMBERS ════════ -->
+<div class="big-numbers">
+    <div class="bn">
+        <div class="num" id="kpi-mins">-291 min</div>
+        <div class="lbl" id="kpi-mins-lbl">Meaningful minutes lost per day</div>
+        <div class="exp" id="kpi-mins-exp">Since 2003, each day has about <strong>5 fewer hours</strong> of time that feels meaningful</div>
+    </div>
+    <div class="bn">
+        <div class="num" id="kpi-alone">47%</div>
+        <div class="lbl" id="kpi-alone-lbl">of the day is spent alone</div>
+        <div class="exp" id="kpi-alone-exp">Up from 39% in 2010. Nearly half the day has no human connection.</div>
+    </div>
+    <div class="bn">
+        <div class="num" id="kpi-meaning">7.09</div>
+        <div class="lbl" id="kpi-meaning-lbl">meaning score in latest year</div>
+        <div class="exp" id="kpi-meaning-exp">How meaningful the average day feels (0-10 scale)</div>
+    </div>
+</div>
+
+<div class="main">
+
+    <!-- ════════ STORY 1: MONEY ════════ -->
+    <div class="divider"><span class="sec-num">Finding 1</span></div>
+    <div class="story">
+        <div class="story-header">
+            <img src="./GDP.png" alt="">
+            <span class="tag">The Money Question</span>
+        </div>
+        <h2>More money does not mean a more meaningful life</h2>
+        <p class="one-liner">People across all income levels rate their days almost the same on meaning and happiness.</p>
+
+        <div class="card">
+            <div class="card-body">
+                <h3>How meaningful does each income group feel?</h3>
+                <div class="sub">
+                    We split people into 4 income groups. The scores are nearly identical.
+                    <span class="tip">Meaning score<span class="tip-text">How meaningful people feel their daily activities are, on a scale of 0 to 10</span></span>
+                    barely changes across income.
+                </div>
+                <div class="chart-wrap"><canvas id="chIncome"></canvas></div>
+            </div>
+            <div class="sidebar-panel">
+                <div class="sb">
+                    <div class="sb-title">What this means</div>
+                    <p>Whether you earn $25K or $250K, your day feels about equally meaningful.</p>
+                </div>
+                <div class="sb">
+                    <div class="sb-title">Why it matters</div>
+                    <p>Policies focused only on income growth miss what actually makes people's lives feel worthwhile.</p>
+                </div>
+                <div class="sb highlight">
+                    <div class="sb-title">Key insight</div>
+                    <p><strong>The things that make life feel meaningful are available to everyone, regardless of income.</strong></p>
+                </div>
+                <div class="sb">
+                    <div class="sb-title">In simple terms</div>
+                    <p>A teacher and a CEO can have equally meaningful Tuesdays.</p>
+                </div>
+            </div>
+        </div>
+
+        <details>
+            <summary>What about the difference between meaning and happiness?</summary>
+            <div class="detail-body">
+                <p style="font-size:0.82rem;color:var(--g700);margin-bottom:0.8rem;">
+                    Meaning and happiness are <strong>not the same thing</strong>. Childcare feels deeply meaningful (+0.90 gap) but is often stressful. Watching TV feels pleasant but scores low on meaning (-1.80 gap). This matters: if we only measure happiness, we miss what gives life purpose.
+                </p>
+                <div class="chart-wrap" style="height:260px;"><canvas id="chDivergence"></canvas></div>
+            </div>
+        </details>
+    </div>
+
+    <!-- ════════ STORY 2: PEOPLE ════════ -->
+    <div class="divider"><span class="sec-num">Finding 2</span></div>
+    <div class="story">
+        <div class="story-header">
+            <img src="./psychological.png" alt="">
+            <span class="tag">The Connection Question</span>
+        </div>
+        <h2>Everything feels more meaningful when done with other people</h2>
+        <p class="one-liner">Every single activity we measured scores higher when you do it with someone else.</p>
+
+        <div class="card">
+            <div class="card-body">
+                <h3>Same activity, different experience</h3>
+                <div class="sub">
+                    The
+                    <span class="tip">social premium<span class="tip-text">How much more meaningful an activity feels when done with others instead of alone</span></span>
+                    is the gap between the two bars. Bigger gap = bigger boost from company.
+                </div>
+                <div class="chart-wrap" style="height:320px;"><canvas id="chSocial"></canvas></div>
+            </div>
+            <div class="sidebar-panel">
+                <div class="sb">
+                    <div class="sb-title">What this means</div>
+                    <p>A meal alone scores 7.1. The same meal with someone? 8.2. That's a <strong>15% boost</strong> just from company.</p>
+                </div>
+                <div class="sb">
+                    <div class="sb-title">Why it matters</div>
+                    <p>Workplaces, schools, and neighborhoods that help people connect aren't luxuries. They're well-being infrastructure.</p>
+                </div>
+                <div class="sb highlight">
+                    <div class="sb-title">Key insight</div>
+                    <p><strong>The single easiest way to make any activity more meaningful: do it with someone.</strong></p>
+                </div>
+                <div class="sb">
+                    <div class="sb-title">In simple terms</div>
+                    <p>Even boring chores feel better when you have company.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="insight-box">
+            <img src="./psychological.png" alt="">
+            <div>
+                <h4>Psychological Safety as Infrastructure</h4>
+                <p>Paid work alone scores <strong>6.75</strong>. With colleagues: <strong>7.36</strong>. Yet 86% of the decline in meaningful time traces to <strong>rising solitude</strong>. Creating spaces where people feel safe to connect isn't a soft perk. It's the most cost-effective well-being investment available.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ════════ STORY 3: TRENDS ════════ -->
+    <div class="divider"><span class="sec-num">Finding 3</span></div>
+    <div class="story">
+        <div class="story-header">
+            <img src="./neighborhood.png" alt="">
+            <span class="tag">The Trend</span>
+        </div>
+        <h2>Americans are spending more time alone, and meaning is falling</h2>
+        <p class="one-liner">Over 22 years, how meaningful people feel about their day has slowly declined. Loneliness is the main driver.</p>
+
+        <div class="card">
+            <div class="card-body">
+                <h3>How meaningful does the average day feel? (2003-2024)</h3>
+                <div class="sub">
+                    The
+                    <span class="tip">meaning score<span class="tip-text">Average rating of how meaningful daily activities feel, on a 0-10 scale, across all Americans</span></span>
+                    has dropped steadily. The
+                    <span class="tip">affect score<span class="tip-text">How pleasant or happy people feel during activities, on a 0-10 scale. This measures mood, not purpose.</span></span>
+                    (happiness) barely moved.
+                </div>
+                <div class="chart-wrap"><canvas id="chTimeSeries"></canvas></div>
+            </div>
+            <div class="sidebar-panel">
+                <div class="sb">
+                    <div class="sb-title">What this means</div>
+                    <p>Americans feel about the same level of happiness as 20 years ago, but their days feel <strong>less purposeful</strong>.</p>
+                </div>
+                <div class="sb highlight">
+                    <div class="sb-title">Key insight</div>
+                    <p><strong>We're maintaining happiness but losing meaning. That's a problem conventional metrics miss entirely.</strong></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <h3>Time spent with other people (2003-2024)</h3>
+                <div class="sub">
+                    The
+                    <span class="tip">alone time share<span class="tip-text">Percentage of waking hours spent without any other person present</span></span>
+                    jumped sharply around 2020 and hasn't recovered.
+                </div>
+                <div class="chart-wrap"><canvas id="chAlone"></canvas></div>
+            </div>
+            <div class="sidebar-panel">
+                <div class="sb">
+                    <div class="sb-title">What this means</div>
+                    <p>In 2010, people spent about 39% of their day alone. By 2024, it's 47%. That's an extra <strong>~1.2 hours alone every day</strong>.</p>
+                </div>
+                <div class="sb">
+                    <div class="sb-title">Why it matters</div>
+                    <p>This isn't just a pandemic effect. The trend started before COVID and hasn't reversed.</p>
+                </div>
+            </div>
+        </div>
+
+        <details>
+            <summary>What's driving the decline? (Full breakdown)</summary>
+            <div class="detail-body">
+                <p style="font-size:0.82rem;color:var(--g700);margin-bottom:0.8rem;">
+                    We broke down the -0.114 point decline over 21 years into its causes:
+                </p>
+                <div class="chart-wrap" style="height:250px;"><canvas id="chDecomp"></canvas></div>
+                <p style="font-size:0.78rem;color:var(--g500);margin-top:0.6rem;">
+                    The biggest culprit: <strong>time spent alone is becoming less meaningful</strong> (-0.070 points). People also shifted time from high-meaning activities (socializing, education) toward low-meaning ones (TV, streaming).
+                </p>
+            </div>
+        </details>
+    </div>
+
+    <!-- ════════ STORY 4: WHAT TO DO ════════ -->
+    <div class="divider"><span class="sec-num">Finding 4</span></div>
+    <div class="story">
+        <div class="story-header">
+            <img src="./neighborhood.png" alt="">
+            <span class="tag">The Opportunity</span>
+        </div>
+        <h2>Community, inclusion, and care are the highest-return investments</h2>
+        <p class="one-liner">The activities with the highest meaning scores are about connection and care, not consumption.</p>
+
+        <div class="card">
+            <div class="card-body">
+                <h3>Which activities are gaining and losing time?</h3>
+                <div class="sub">
+                    Positive values mean an activity <strong>helped offset</strong> the meaning decline. Negative values mean it <strong>made the decline worse</strong>.
+                </div>
+                <div class="chart-wrap" style="height:300px;"><canvas id="chContrib"></canvas></div>
+            </div>
+            <div class="sidebar-panel">
+                <div class="sb">
+                    <div class="sb-title">What this means</div>
+                    <p>Americans lost 11 min/day of social time (score: 8.55) and gained 6.5 min/day of passive screen time (score: 6.20). That swap alone accounts for a huge share of the decline.</p>
+                </div>
+                <div class="sb highlight">
+                    <div class="sb-title">Key insight</div>
+                    <p><strong>Shifting just 10 minutes from TV to social time would meaningfully reverse the national trend.</strong></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="insight-box">
+            <img src="./insurance.png" alt="">
+            <div>
+                <h4>Policy Implications</h4>
+                <p>Three evidence-based levers: (1) <strong>Community spaces</strong> that make social participation easy and accessible; (2) <strong>Care economy investment</strong> to support the highest-meaning activities (childcare: 9.01, socializing: 8.55); (3) <strong>Workplace belonging</strong> that closes the gap between solo work (6.75) and connected work (7.36). These aren't soft amenities. They are measurable, high-return well-being infrastructure.</p>
+            </div>
+        </div>
+
+        <details>
+            <summary>Who is losing the most meaningful time?</summary>
+            <div class="detail-body">
+                <p style="font-size:0.82rem;color:var(--g700);margin-bottom:0.8rem;">
+                    Demographic shifts between 2010 and 2024:
+                </p>
+                <div class="chart-wrap" style="height:250px;"><canvas id="chDemo"></canvas></div>
+                <p style="font-size:0.78rem;color:var(--g500);margin-top:0.6rem;">
+                    <strong>Fewer parents</strong> (41% to 35%) cost -0.007 meaning points. <strong>Aging population</strong> (avg 32.5 to 38.7) cost -0.006. More education (+9.2 years) helped slightly (+0.004). The takeaway: inclusive programs that bring different ages, family types, and backgrounds together can offset these structural shifts.
+                </p>
+            </div>
+        </details>
+    </div>
+
+    <!-- ════════ REMEMBER BOX ════════ -->
+    <div class="remember">
+        <h3>If you remember one thing</h3>
+        <p>Money can't buy meaningful time, but spending time with people can. And America is doing less of it every year.</p>
+    </div>
+
+    <!-- ════════ DEEP DIVE ════════ -->
+    <div class="divider"><span class="sec-num">Deep Dive</span></div>
+
+    <details>
+        <summary>Full activity data table (all 9 categories)</summary>
+        <div class="detail-body">
+            <p style="font-size:0.78rem;color:var(--g500);margin-bottom:0.6rem;">
+                Every row shows an activity, how much time Americans spend on it, how meaningful it feels, and how much the
+                <span class="tip">social premium<span class="tip-text">The meaning boost from doing an activity with someone vs. alone</span></span>
+                adds.
+            </p>
+            <div style="overflow-x:auto;">
+            <table class="data-table">
+                <thead><tr>
+                    <th>Activity</th><th>Min/Day</th><th>Change</th>
+                    <th><span class="tip">Meaning<span class="tip-text">How meaningful this activity feels on average (0-10)</span></span></th>
+                    <th>With Others</th><th>Alone</th>
+                    <th><span class="tip">Social Boost<span class="tip-text">Extra meaning points from doing this with someone</span></span></th>
+                    <th>Impact</th>
+                </tr></thead>
+                <tbody>
+                    <tr><td>Childcare</td><td>32.7</td><td class="neg">-1.9</td><td><strong>9.01</strong></td><td>9.06</td><td>8.70</td><td class="pos">+0.36</td><td class="neg">-28%</td></tr>
+                    <tr><td>Socializing</td><td>54.3</td><td class="neg">-11.2</td><td><strong>8.55</strong></td><td>8.58</td><td>8.31</td><td class="pos">+0.27</td><td class="neg">-151%</td></tr>
+                    <tr><td>Sports / Exercise</td><td>20.4</td><td class="pos">+0.3</td><td><strong>8.39</strong></td><td>8.48</td><td>8.11</td><td class="pos">+0.37</td><td class="pos">+13%</td></tr>
+                    <tr><td>Eating / Drinking</td><td>68.1</td><td class="pos">+0.4</td><td><strong>7.96</strong></td><td>8.21</td><td>7.14</td><td class="pos">+1.07</td><td class="pos">+20%</td></tr>
+                    <tr><td>Household Tasks</td><td>145.4</td><td class="pos">+8.0</td><td><strong>7.67</strong></td><td>7.85</td><td>7.49</td><td class="pos">+0.36</td><td class="pos">+146%</td></tr>
+                    <tr><td>Paid Work</td><td>190.7</td><td class="neg">-2.6</td><td><strong>7.27</strong></td><td>7.36</td><td>6.75</td><td class="pos">+0.61</td><td class="pos">+7%</td></tr>
+                    <tr><td>Education / Other</td><td>30.1</td><td class="neg">-11.9</td><td><strong>7.22</strong></td><td>7.31</td><td>7.01</td><td class="pos">+0.30</td><td class="neg">-141%</td></tr>
+                    <tr><td>Travel</td><td>64.6</td><td class="neg">-6.0</td><td><strong>6.93</strong></td><td>7.16</td><td>6.56</td><td class="pos">+0.60</td><td class="neg">-51%</td></tr>
+                    <tr><td>TV / Screens / Relaxing</td><td>243.1</td><td class="pos">+6.5</td><td><strong>6.20</strong></td><td>6.49</td><td>5.90</td><td class="pos">+0.59</td><td class="pos">+86%</td></tr>
+                </tbody>
+            </table>
+            </div>
+        </div>
+    </details>
+
+    <details>
+        <summary>Meaning-minutes per day (2003-2024)</summary>
+        <div class="detail-body">
+            <p style="font-size:0.78rem;color:var(--g500);margin-bottom:0.6rem;">
+                <span class="tip">Meaning-minutes<span class="tip-text">Total daily minutes weighted by how meaningful each activity feels. Higher = more meaningful day overall.</span></span>:
+                a way to measure the total "meaningfulness" of a day in one number.
+            </p>
+            <div class="chart-wrap" style="height:240px;"><canvas id="chMins"></canvas></div>
+        </div>
+    </details>
+
+    <details>
+        <summary>Data quality and methodology</summary>
+        <div class="detail-body">
+            <p style="font-size:0.78rem;color:var(--g500);margin-bottom:0.8rem;">
+                We tested our results using three completely independent statistical methods. All produced nearly identical findings.
+            </p>
+            <div class="robust-grid">
+                <div class="r-item"><div class="r-lbl">Method A vs B2</div><div class="r-val">r = .998</div></div>
+                <div class="r-item"><div class="r-lbl">Method A vs D</div><div class="r-val">r = .978</div></div>
+                <div class="r-item"><div class="r-lbl">Method A vs R1</div><div class="r-val">r = .998</div></div>
+            </div>
+            <p style="font-size:0.72rem;color:var(--g400);margin-top:0.6rem;">
+                Correlations above 0.95 mean the findings are robust regardless of methodology. The data covers 22 survey years (2003-2024) with 200,000+ diary-day observations from the ATUS Well-Being Module.
+            </p>
+            <div class="chart-wrap" style="height:220px;margin-top:0.8rem;"><canvas id="chElig"></canvas></div>
+            <p style="font-size:0.72rem;color:var(--g400);margin-top:0.4rem;">
+                <span class="tip">Eligible minutes<span class="tip-text">Total daily minutes available for meaning measurement (excludes sleep and personal care)</span></span>
+                per day stayed consistent at ~850-875 across all 22 years, confirming data stability.
+            </p>
+        </div>
+    </details>
+
+</div>
+
+<!-- ════════ FOOTER ════════ -->
+<footer style="background:#111;color:#888;text-align:center;padding:0.5rem 0.5rem;font-size:12px;line-height:1.2;">
+    <div>Meaningful Time, April 2026.</div>
+    <div>Bhagyashree Vaidya &middot; University of Washington, MSIM, iSchool</div>
+    <div>Prof. German Gutierrez &middot; Foster School of Business &middot; Assistant Professor of Finance and Business Economics</div>
+</footer>
+
+<!-- ════════ SCRIPTS ════════ -->
+<script>
+const D = {
+    yr: ['2003','2004','2005','2006','2007','2008','2009','2010','2011','2012','2013','2014','2015','2016','2017','2018','2019','2020','2021','2022','2023','2024'],
+    m: [7.206,7.195,7.194,7.194,7.193,7.179,7.172,7.173,7.166,7.162,7.168,7.153,7.145,7.150,7.140,7.128,7.120,7.038,7.055,7.074,7.070,7.092],
+    a: [7.416,7.417,7.414,7.407,7.408,7.407,7.410,7.407,7.405,7.411,7.408,7.404,7.402,7.394,7.397,7.394,7.384,7.371,7.370,7.375,7.371,7.381],
+    ss:[45.1,44.7,45.1,43.6,43.0,42.8,43.5,60.5,60.5,61.0,60.8,60.8,59.7,59.1,59.2,58.4,57.0,51.8,51.8,53.0,51.7,52.1],
+    mm:[6315,6303,6259,6268,6298,6260,6233,6229,6218,6212,6188,6158,6121,6162,6140,6136,6109,6013,6029,6010,5983,6024],
+    em:[876,875,869,870,875,871,868,868,867,867,863,860,856,861,860,860,857,854,854,849,846,849]
+};
+const M='#c25e9b',BK='#000',GR='#d4d4d4',POS='#16a34a',NEG='#dc2626',GD='rgba(0,0,0,0.05)',TX='#404040';
+Chart.defaults.color=TX;Chart.defaults.font.family="'Segoe UI',system-ui,sans-serif";Chart.defaults.font.size=11;
+function sc(xT,yT,yMn,yMx){return{x:{ticks:{color:TX},grid:{color:GD},...(xT&&{title:{display:true,text:xT,color:'#737373'}})},y:{ticks:{color:TX},grid:{color:GD},...(yMn!=null&&{min:yMn}),...(yMx!=null&&{max:yMx}),...(yT&&{title:{display:true,text:yT,color:'#737373'}})}}}
+const C={};
+
+// Populate year selects
+const ys=document.getElementById('yrStart'),ye=document.getElementById('yrEnd');
+D.yr.forEach((y,i)=>{ys.add(new Option(y,i));ye.add(new Option(y,i))});
+ye.value=D.yr.length-1;
+
+// 1. Income
+C.inc=new Chart(document.getElementById('chIncome'),{type:'bar',data:{labels:['Lowest 25%','Lower-Middle','Upper-Middle','Highest 25%'],datasets:[{label:'How meaningful the day feels',data:[7.05,7.10,7.18,7.20],backgroundColor:M,borderRadius:4},{label:'How happy the day feels',data:[7.20,7.15,7.18,7.20],backgroundColor:GR,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{padding:12,usePointStyle:true,pointStyle:'rectRounded',color:BK}}},scales:sc('Income Group','Score (0-10)',0,9)}});
+
+// 2. Divergence (hidden in details)
+C.div=new Chart(document.getElementById('chDivergence'),{type:'bar',data:{labels:['Childcare','Paid Work','Education','Household','Socializing','Exercise','Eating','Travel','TV / Screens'],datasets:[{label:'Meaning minus Happiness',data:[0.90,0.50,0.35,0.10,0.05,-0.10,-0.65,-0.80,-1.80],backgroundColor:[0.90,0.50,0.35,0.10,0.05,-0.10,-0.65,-0.80,-1.80].map(v=>v>=0?M:GR),borderRadius:4,borderSkipped:false}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>{const v=ctx.parsed.x;return v>=0?`+${v.toFixed(2)}: feels more meaningful than pleasant`:`${v.toFixed(2)}: feels more pleasant than meaningful`}}}},scales:{x:{ticks:{color:TX},grid:{color:GD},title:{display:true,text:'Meaning minus Happiness gap',color:'#737373'}},y:{ticks:{color:TX,font:{size:10}},grid:{color:GD}}}}});
+
+// 3. Social context
+const acts=['Childcare','Socializing','Exercise','Eating','Household','Work','Education','Travel','TV/Screens'];
+const muW=[9.06,8.58,8.48,8.21,7.85,7.36,7.31,7.16,6.49],muA=[8.70,8.31,8.11,7.14,7.49,6.75,7.01,6.56,5.90];
+C.soc=new Chart(document.getElementById('chSocial'),{type:'bar',data:{labels:acts,datasets:[{label:'With others',data:muW,backgroundColor:M,borderRadius:4,borderSkipped:false},{label:'Alone',data:muA,backgroundColor:GR,borderRadius:4,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{padding:16,usePointStyle:true,color:BK}},tooltip:{callbacks:{afterBody:ctx=>`Social boost: +${(muW[ctx[0].dataIndex]-muA[ctx[0].dataIndex]).toFixed(2)} points`}}},scales:sc(null,'Meaning Score (0-10)',5,10)}});
+
+// 4. Time series
+C.ts=new Chart(document.getElementById('chTimeSeries'),{type:'line',data:{labels:D.yr,datasets:[{label:'How meaningful (purpose)',data:D.m,borderColor:M,backgroundColor:M+'12',fill:true,tension:0.3,pointRadius:2,pointHoverRadius:5,pointBackgroundColor:M,borderWidth:2.5},{label:'How happy (mood)',data:D.a,borderColor:BK,backgroundColor:'transparent',borderDash:[6,3],tension:0.3,pointRadius:2,pointHoverRadius:5,pointBackgroundColor:BK,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{padding:14,usePointStyle:true,color:BK}},tooltip:{callbacks:{afterBody:ctx=>ctx[0].dataIndex===17?'COVID-19 impact':''}}},scales:sc(null,'Score (0-10)',7.0,7.45)}});
+
+// 5. Alone share
+C.al=new Chart(document.getElementById('chAlone'),{type:'line',data:{labels:D.yr,datasets:[{label:'% of day spent with others',data:D.ss,borderColor:M,backgroundColor:M+'12',fill:true,tension:0.3,pointRadius:3,pointBackgroundColor:M,pointBorderColor:'#fff',pointBorderWidth:2,borderWidth:2.5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{afterBody:ctx=>{if(ctx[0].dataIndex===7)return'2010: survey method changed';if(ctx[0].dataIndex===17)return'COVID-19 disruption';return''}}}},scales:sc('Year','% of day with others',40,65)}});
+
+// 6. Decomposition (hidden)
+C.dec=new Chart(document.getElementById('chDecomp'),{type:'bar',data:{labels:['Shifted to\nless meaningful\nactivities','More time\nalone','Solo time\nbecame less\nmeaningful','Small\nimprovement\ntogether','Residual','Total'],datasets:[{data:[-0.050,-0.068,-0.070,+0.002,+0.004,-0.114],backgroundColor:[NEG,NEG,NEG,POS,POS,M],borderRadius:4,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:sc(null,'Impact on meaning score',-0.13,0.02)}});
+
+// 7. Activity contributions
+const cL=['Household','TV/Screens','Eating','Exercise','Work','Childcare','Travel','Education','Socializing'];
+const cP=[145.9,-86.3,19.6,13.0,6.6,-28.3,-51.3,-140.7,-151.0];
+C.ctr=new Chart(document.getElementById('chContrib'),{type:'bar',data:{labels:cL,datasets:[{data:cP,backgroundColor:cP.map(v=>v>0?M:GR),borderRadius:4,borderSkipped:false}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>{const v=ctx.parsed.x;return v>0?`Helped offset decline by ${v.toFixed(0)}%`:`Made decline worse by ${Math.abs(v).toFixed(0)}%`}}}},scales:{x:{ticks:{color:TX},grid:{color:GD},title:{display:true,text:'Impact (% of total change)',color:'#737373'}},y:{ticks:{color:TX,font:{size:10}},grid:{color:GD}}}}});
+
+// 8. Demographics (hidden)
+C.dem=new Chart(document.getElementById('chDemo'),{type:'bar',data:{labels:['Avg Age','Education\n(years)','Employed\n(%)','Parent\n(%)','Female\n(%)'],datasets:[{label:'2010',data:[32.5,28.0,43.3,41.1,51.5],backgroundColor:GR,borderRadius:4},{label:'2024',data:[38.7,37.3,41.8,35.0,51.2],backgroundColor:M,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{padding:14,usePointStyle:true,color:BK}}},scales:sc(null,null,0,55)}});
+
+// 9. Meaning-minutes (hidden)
+C.min=new Chart(document.getElementById('chMins'),{type:'line',data:{labels:D.yr,datasets:[{data:D.mm,borderColor:M,backgroundColor:M+'10',fill:true,tension:0.3,pointRadius:2,pointHoverRadius:5,pointBackgroundColor:M,borderWidth:2.5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{afterBody:ctx=>`${(D.mm[ctx[0].dataIndex]/60).toFixed(1)} meaning-hours`}}},scales:sc('Year','Meaning-minutes per day',5900,6400)}});
+
+// 10. Eligibility (hidden)
+C.el=new Chart(document.getElementById('chElig'),{type:'bar',data:{labels:D.yr,datasets:[{data:D.em,backgroundColor:M+'44',borderRadius:2,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:sc('Year','Eligible minutes per day',830,890)}});
+
+// ═══ FILTERS ═══
+function applyFilters(){
+    const s=+ys.value,e=+ye.value,lo=Math.min(s,e),hi=Math.max(s,e);
+    const sl=a=>a.slice(lo,hi+1),lb=sl(D.yr);
+    [[C.ts,[sl(D.m),sl(D.a)]],[C.al,[sl(D.ss)]],[C.min,[sl(D.mm)]],[C.el,[sl(D.em)]]].forEach(([c,ds])=>{c.data.labels=lb;ds.forEach((d,i)=>c.data.datasets[i].data=d);c.update()});
+
+    // Update KPI numbers based on selected range
+    const startYr=D.yr[lo], endYr=D.yr[hi];
+    const mStart=D.mm[lo], mEnd=D.mm[hi], mDelta=mEnd-mStart;
+    const ssEnd=D.ss[hi];
+    const meaningEnd=D.m[hi];
+
+    // KPI 1: Meaning-minutes change
+    const deltaSign=mDelta>0?'+':'';
+    document.getElementById('kpi-mins').textContent=`${deltaSign}${mDelta} min`;
+    document.getElementById('kpi-mins-lbl').textContent=lo===hi?`Meaningful minutes in ${startYr}`:`Change in meaningful minutes/day`;
+    const hrs=Math.abs(mDelta/60).toFixed(1);
+    document.getElementById('kpi-mins-exp').innerHTML=lo===hi
+        ?`${mEnd.toLocaleString()} meaning-weighted minutes (<strong>${(mEnd/60).toFixed(1)} hours</strong>)`
+        :`From ${startYr} to ${endYr}: <strong>${hrs} hours ${mDelta<0?'fewer':'more'}</strong> meaningful time per day`;
+
+    // KPI 2: Alone share (inverted from social share)
+    const aloneEnd=Math.round(100-ssEnd);
+    document.getElementById('kpi-alone').textContent=`${aloneEnd}%`;
+    document.getElementById('kpi-alone-lbl').textContent=`of the day spent alone in ${endYr}`;
+    if(lo!==hi){
+        const aloneStart=Math.round(100-D.ss[lo]);
+        const aloneDelta=aloneEnd-aloneStart;
+        document.getElementById('kpi-alone-exp').innerHTML=`${aloneDelta>0?'Up':'Down'} from ${aloneStart}% in ${startYr}. ${aloneEnd>=45?'Nearly half the day has no human connection.':''}`;
+    } else {
+        document.getElementById('kpi-alone-exp').innerHTML=`${aloneEnd>=45?'Nearly half':'About '+aloneEnd+'%'} of waking time is spent without others.`;
+    }
+
+    // KPI 3: Meaning score
+    document.getElementById('kpi-meaning').textContent=meaningEnd.toFixed(2);
+    document.getElementById('kpi-meaning-lbl').textContent=`meaning score in ${endYr}`;
+    if(lo!==hi){
+        const mChange=(D.m[hi]-D.m[lo]).toFixed(3);
+        const dir=mChange>0?'up':'down';
+        document.getElementById('kpi-meaning-exp').innerHTML=`${dir==='down'?'Down':'Up'} from ${D.m[lo].toFixed(2)} in ${startYr} (<strong>${mChange>0?'+':''}${mChange}</strong>)`;
+    } else {
+        document.getElementById('kpi-meaning-exp').innerHTML=`How meaningful the average day feels (0-10 scale)`;
+    }
+
+    applyCmp();
+}
+function applyCmp(){
+    const mode=document.getElementById('cmpMode').value,b=document.getElementById('cmpBadges');
+    resetCmp();
+    if(!mode){b.innerHTML='';return}
+    const nm={meaning_affect:'Meaning vs Happiness',with_alone:'Together vs Alone',pre_post_covid:'Before vs After COVID'};
+    b.innerHTML=`<span class="compare-badge">${nm[mode]} <span class="x" onclick="clearCmp()">&times;</span></span>`;
+    if(mode==='meaning_affect'){C.ts.data.datasets[0].borderWidth=4;C.ts.data.datasets[1].borderWidth=4;C.ts.data.datasets[1].borderDash=[];C.ts.update()}
+    else if(mode==='with_alone'){C.soc.data.datasets[1].backgroundColor=BK;C.soc.update()}
+    else if(mode==='pre_post_covid'){C.ts.data.datasets[0].segment={borderColor:ctx=>ctx.p0DataIndex<C.ts.data.labels.indexOf('2020')?M:NEG};C.ts.update()}
+}
+function resetCmp(){C.ts.data.datasets[0].borderWidth=2.5;C.ts.data.datasets[0].segment=undefined;C.ts.data.datasets[1].borderWidth=2;C.ts.data.datasets[1].borderDash=[6,3];C.ts.update();C.soc.data.datasets[1].backgroundColor=GR;C.soc.update()}
+function clearCmp(){document.getElementById('cmpMode').value='';document.getElementById('cmpBadges').innerHTML='';resetCmp()}
+function resetAll(){ys.value='0';ye.value=D.yr.length-1;clearCmp();applyFilters()}
+function exportCSV(){
+    const s=+ys.value,e=+ye.value,lo=Math.min(s,e),hi=Math.max(s,e);
+    let c='Year,MeaningScore,AffectScore,SocialSharePct,MeaningMinutesDay,EligibleMinutesDay\n';
+    for(let i=lo;i<=hi;i++)c+=`${D.yr[i]},${D.m[i]},${D.a[i]},${D.ss[i]},${D.mm[i]},${D.em[i]}\n`;
+    c+='\nActivity,MinPerDay,MeaningScore,WithOthers,Alone,SocialBoost,ContributionPct\n';
+    [['Childcare',32.7,9.01,9.06,8.70,0.36,-28.3],['Socializing',54.3,8.55,8.58,8.31,0.27,-151.0],['Exercise',20.4,8.39,8.48,8.11,0.37,13.0],['Eating',68.1,7.96,8.21,7.14,1.07,19.6],['Household',145.4,7.67,7.85,7.49,0.36,145.9],['Work',190.7,7.27,7.36,6.75,0.61,6.6],['Education',30.1,7.22,7.31,7.01,0.30,-140.7],['Travel',64.6,6.93,7.16,6.56,0.60,-51.3],['TV/Screens',243.1,6.20,6.49,5.90,0.59,86.3]].forEach(r=>c+=r.join(',')+'\n');
+    const bl=new Blob([c],{type:'text/csv'}),a=document.createElement('a');a.href=URL.createObjectURL(bl);
+    a.download=`meaningful_time_${D.yr[lo]}_${D.yr[hi]}.csv`;a.click()
+}
+ys.addEventListener('change',applyFilters);ye.addEventListener('change',applyFilters);document.getElementById('cmpMode').addEventListener('change',applyFilters);
+
+// Tooltip positioning - use fixed so it escapes any overflow:hidden parent
+document.querySelectorAll('.tip').forEach(tip => {
+    const tt = tip.querySelector('.tip-text');
+    if (!tt) return;
+    tip.addEventListener('mouseenter', () => {
+        const r = tip.getBoundingClientRect();
+        tt.style.display = 'block';
+        // Position below the word
+        let top = r.bottom + 8;
+        let left = r.left + r.width / 2 - 120;
+        // Keep within viewport
+        if (left < 8) left = 8;
+        if (left + 240 > window.innerWidth - 8) left = window.innerWidth - 248;
+        if (top + 100 > window.innerHeight) top = r.top - tt.offsetHeight - 8;
+        tt.style.top = top + 'px';
+        tt.style.left = left + 'px';
+    });
+    tip.addEventListener('mouseleave', () => { tt.style.display = 'none'; });
+});
+</script>
+</body>
+</html>
