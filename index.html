@@ -635,6 +635,12 @@ const D = {
 };
 const M='#c25e9b',BK='#000',GR='#d4d4d4',POS='#16a34a',NEG='#dc2626',GD='rgba(0,0,0,0.05)',TX='#404040';
 Chart.defaults.color=TX;Chart.defaults.font.family="'Segoe UI',system-ui,sans-serif";Chart.defaults.font.size=11;
+// Built-in animations: bars grow up, lines draw in
+Chart.defaults.animation = {
+    duration: 1800,
+    easing: 'easeOutQuart',
+    delay: (ctx) => ctx.dataIndex * 80
+};
 function sc(xT,yT,yMn,yMx){return{x:{ticks:{color:TX},grid:{color:GD},...(xT&&{title:{display:true,text:xT,color:'#737373'}})},y:{ticks:{color:TX},grid:{color:GD},...(yMn!=null&&{min:yMn}),...(yMx!=null&&{max:yMx}),...(yT&&{title:{display:true,text:yT,color:'#737373'}})}}}
 const C={};
 
