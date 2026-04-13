@@ -190,17 +190,16 @@
             color: var(--mag); font-weight: 600;
         }
         .tip .tip-text {
-            display: none; position: fixed; width: 240px;
+            display: none;
+        }
+        .tip-floating {
+            position: fixed; width: 240px;
             background: var(--g900); color: var(--white); font-size: 0.74rem;
             padding: 0.55rem 0.75rem; border-radius: 6px; font-weight: 400;
             line-height: 1.5; z-index: 9999; text-align: left;
             box-shadow: 0 4px 16px rgba(0,0,0,0.25);
             pointer-events: none;
         }
-        .tip .tip-text::after {
-            display: none;
-        }
-        /* tooltip show/hide handled by JS for fixed positioning */
 
         /* ── Data table ── */
         .data-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
@@ -242,7 +241,20 @@
             margin: 2rem 0;
         }
         .remember h3 { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; color: var(--mag-light); margin-bottom: 0.5rem; }
-        .remember p { font-size: 1.2rem; font-weight: 700; max-width: 600px; margin: 0 auto; line-height: 1.5; }
+        .remember p { font-size: 1.2rem; font-weight: 700; margin: 0 auto; line-height: 1.5; }
+
+        /* ── Scroll animations ── */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal-delay-1 { transition-delay: 0.15s; }
+        .reveal-delay-2 { transition-delay: 0.3s; }
 
         @media (max-width: 768px) {
             .big-numbers { grid-template-columns: 1fr; }
@@ -285,7 +297,7 @@
 </div>
 
 <!-- ════════ BIG NUMBERS ════════ -->
-<div class="big-numbers">
+<div class="big-numbers reveal">
     <div class="bn">
         <div class="num" id="kpi-mins">-291 min</div>
         <div class="lbl" id="kpi-mins-lbl">Meaningful minutes lost per day</div>
@@ -315,7 +327,7 @@
         <h2>More money does not mean a more meaningful life</h2>
         <p class="one-liner">People across all income levels rate their days almost the same on meaning and happiness.</p>
 
-        <div class="card">
+        <div class="card reveal">
             <div class="card-body">
                 <h3>How meaningful does each income group feel?</h3>
                 <div class="sub">
@@ -345,7 +357,7 @@
             </div>
         </div>
 
-        <details>
+        <details open>
             <summary>What about the difference between meaning and happiness?</summary>
             <div class="detail-body">
                 <p style="font-size:0.82rem;color:var(--g700);margin-bottom:0.8rem;">
@@ -366,7 +378,7 @@
         <h2>Everything feels more meaningful when done with other people</h2>
         <p class="one-liner">Every single activity we measured scores higher when you do it with someone else.</p>
 
-        <div class="card">
+        <div class="card reveal">
             <div class="card-body">
                 <h3>Same activity, different experience</h3>
                 <div class="sub">
@@ -396,7 +408,7 @@
             </div>
         </div>
 
-        <div class="insight-box">
+        <div class="insight-box reveal">
             <img src="./psychological.png" alt="">
             <div>
                 <h4>Psychological Safety as Infrastructure</h4>
@@ -415,7 +427,7 @@
         <h2>Americans are spending more time alone, and meaning is falling</h2>
         <p class="one-liner">Over 22 years, how meaningful people feel about their day has slowly declined. Loneliness is the main driver.</p>
 
-        <div class="card">
+        <div class="card reveal">
             <div class="card-body">
                 <h3>How meaningful does the average day feel? (2003-2024)</h3>
                 <div class="sub">
@@ -439,7 +451,7 @@
             </div>
         </div>
 
-        <div class="card">
+        <div class="card reveal">
             <div class="card-body">
                 <h3>Time spent with other people (2003-2024)</h3>
                 <div class="sub">
@@ -461,7 +473,7 @@
             </div>
         </div>
 
-        <details>
+        <details open>
             <summary>What's driving the decline? (Full breakdown)</summary>
             <div class="detail-body">
                 <p style="font-size:0.82rem;color:var(--g700);margin-bottom:0.8rem;">
@@ -485,7 +497,7 @@
         <h2>Community, inclusion, and care are the highest-return investments</h2>
         <p class="one-liner">The activities with the highest meaning scores are about connection and care, not consumption.</p>
 
-        <div class="card">
+        <div class="card reveal">
             <div class="card-body">
                 <h3>Which activities are gaining and losing time?</h3>
                 <div class="sub">
@@ -505,7 +517,7 @@
             </div>
         </div>
 
-        <div class="insight-box">
+        <div class="insight-box reveal">
             <img src="./insurance.png" alt="">
             <div>
                 <h4>Policy Implications</h4>
@@ -513,7 +525,7 @@
             </div>
         </div>
 
-        <details>
+        <details open>
             <summary>Who is losing the most meaningful time?</summary>
             <div class="detail-body">
                 <p style="font-size:0.82rem;color:var(--g700);margin-bottom:0.8rem;">
@@ -528,7 +540,7 @@
     </div>
 
     <!-- ════════ REMEMBER BOX ════════ -->
-    <div class="remember">
+    <div class="remember reveal">
         <h3>If you remember one thing</h3>
         <p>Money can't buy meaningful time, but spending time with people can. And America is doing less of it every year.</p>
     </div>
@@ -536,7 +548,7 @@
     <!-- ════════ DEEP DIVE ════════ -->
     <div class="divider"><span class="sec-num">Deep Dive</span></div>
 
-    <details>
+    <details open>
         <summary>Full activity data table (all 9 categories)</summary>
         <div class="detail-body">
             <p style="font-size:0.78rem;color:var(--g500);margin-bottom:0.6rem;">
@@ -569,7 +581,7 @@
         </div>
     </details>
 
-    <details>
+    <details open>
         <summary>Meaning-minutes per day (2003-2024)</summary>
         <div class="detail-body">
             <p style="font-size:0.78rem;color:var(--g500);margin-bottom:0.6rem;">
@@ -580,7 +592,7 @@
         </div>
     </details>
 
-    <details>
+    <details open>
         <summary>Data quality and methodology</summary>
         <div class="detail-body">
             <p style="font-size:0.78rem;color:var(--g500);margin-bottom:0.8rem;">
@@ -735,25 +747,44 @@ function exportCSV(){
 }
 ys.addEventListener('change',applyFilters);ye.addEventListener('change',applyFilters);document.getElementById('cmpMode').addEventListener('change',applyFilters);
 
-// Tooltip positioning - use fixed so it escapes any overflow:hidden parent
+// ═══ TOOLTIPS ═══
+// Create a single floating tooltip element appended to body (escapes all overflow:hidden)
+const floatingTip = document.createElement('div');
+floatingTip.className = 'tip-floating';
+floatingTip.style.display = 'none';
+document.body.appendChild(floatingTip);
+
 document.querySelectorAll('.tip').forEach(tip => {
     const tt = tip.querySelector('.tip-text');
     if (!tt) return;
+    const content = tt.innerHTML;
     tip.addEventListener('mouseenter', () => {
+        floatingTip.innerHTML = content;
+        floatingTip.style.display = 'block';
         const r = tip.getBoundingClientRect();
-        tt.style.display = 'block';
-        // Position below the word
-        let top = r.bottom + 8;
+        let top = r.top - floatingTip.offsetHeight - 8;
         let left = r.left + r.width / 2 - 120;
-        // Keep within viewport
         if (left < 8) left = 8;
         if (left + 240 > window.innerWidth - 8) left = window.innerWidth - 248;
-        if (top + 100 > window.innerHeight) top = r.top - tt.offsetHeight - 8;
-        tt.style.top = top + 'px';
-        tt.style.left = left + 'px';
+        if (top < 8) top = r.bottom + 8;
+        floatingTip.style.top = top + 'px';
+        floatingTip.style.left = left + 'px';
     });
-    tip.addEventListener('mouseleave', () => { tt.style.display = 'none'; });
+    tip.addEventListener('mouseleave', () => { floatingTip.style.display = 'none'; });
 });
+
+// ═══ SCROLL REVEAL ═══
+const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            revealObserver.unobserve(entry.target);
+        }
+    });
+}, { threshold: 0.08, rootMargin: '0px 0px -20px 0px' });
+
+document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
 </script>
 </body>
 </html>
