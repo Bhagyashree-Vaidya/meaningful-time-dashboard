@@ -35,5 +35,6 @@ Open index.html in any browser. No server required.
 
 Credits
 Bhagyashree Vaidya - University of Washington, MSIM, iSchool
+
 Prof. German Gutierrez - Foster School of Business, Assistant Professor of Finance and Business Economics
 April 2026
