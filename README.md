@@ -1,3 +1,5 @@
+App Link - meaningful-time-dashboard.vercel.app
+
 Meaningful Time in America, 2003-2024
 An interactive data dashboard exploring how Americans experience meaningful time across 22 years and 200,000+ daily diaries from the American Time Use Survey (ATUS) Well-Being Module.
 
