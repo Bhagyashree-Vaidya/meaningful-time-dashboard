@@ -306,7 +306,7 @@
     <div class="bn">
         <div class="num" id="kpi-alone">47%</div>
         <div class="lbl" id="kpi-alone-lbl">of the day is spent alone</div>
-        <div class="exp" id="kpi-alone-exp">Up from 39% in 2010. Nearly half the day has no human connection.</div>
+        <div class="exp" id="kpi-alone-exp">Up from 39% in 2010 (post-WBM baseline). Nearly half the day has no human connection.</div>
     </div>
     <div class="bn">
         <div class="num" id="kpi-meaning">7.09</div>
@@ -457,18 +457,26 @@
                 <div class="sub">
                     The
                     <span class="tip">alone time share<span class="tip-text">Percentage of waking hours spent without any other person present</span></span>
-                    jumped sharply around 2020 and hasn't recovered.
+                    rose steadily from 2010 onward and accelerated through 2020.
+                </div>
+                <div style="background:#fff8ec;border:1px solid #f0d68a;border-left:3px solid #c25e9b;border-radius:6px;padding:0.55rem 0.7rem;margin:0.4rem 0 0.6rem;font-size:0.78rem;color:#404040;">
+                    <strong style="color:#111;">⚠ Data caveat — 2010 methodology break.</strong>
+                    The 2009→2010 jump is <em>not</em> behavioral. Pre-2010, ATUS captured social context only via <code>tuwho_code</code> (who was physically present), and BLS did not ask the question on ~23% of minutes (sleep, much of work, personal care). In 2010 BLS launched the Well-Being Module with <code>wuinteract</code>, which asks directly about interaction (including by phone) on every eligible activity. The "unknown" share collapsed from 23% to 1.3%, mechanically reclassifying minutes onto "with others." <strong>The real trend is the 2010→2024 decline (−8.4 pp).</strong>
                 </div>
                 <div class="chart-wrap"><canvas id="chAlone"></canvas></div>
             </div>
             <div class="sidebar-panel">
                 <div class="sb">
-                    <div class="sb-title">What this means</div>
-                    <p>In 2010, people spent about 39% of their day alone. By 2024, it's 47%. That's an extra <strong>~1.2 hours alone every day</strong>.</p>
+                    <div class="sb-title">Three-period story</div>
+                    <p>
+                        <strong>2003–2009:</strong> co-presence only, 23% unclassified.<br>
+                        <strong>2010:</strong> WBM fielded, instrument changes.<br>
+                        <strong>2011–2024:</strong> consistent series — alone share rises from 39% to 47% (+8.6 pp).
+                    </p>
                 </div>
                 <div class="sb">
                     <div class="sb-title">Why it matters</div>
-                    <p>This isn't just a pandemic effect. The trend started before COVID and hasn't reversed.</p>
+                    <p>The post-2010 trend is real and pre-dates COVID. Within-group decomposition attributes <strong>~86% of the meaning decline</strong> to the social-context channel.</p>
                 </div>
             </div>
         </div>
@@ -604,7 +612,7 @@
                 <div class="r-item"><div class="r-lbl">Method A vs R1</div><div class="r-val">r = .998</div></div>
             </div>
             <p style="font-size:0.72rem;color:var(--g400);margin-top:0.6rem;">
-                Correlations above 0.95 mean the findings are robust regardless of methodology. The data covers 22 survey years (2003-2024) with 200,000+ diary-day observations from the ATUS Well-Being Module.
+                Correlations above 0.95 mean the findings are robust regardless of methodology. The data covers 22 survey years (2003-2024) with 200,000+ diary-day observations. Episode-level meaning, happiness, sadness, stress, pain, tiredness, and interaction (<code>wuinteract</code>) are observed natively in the four ATUS Well-Being Module years (2010, 2012, 2013, 2021); for the remaining post-2010 years these weights are projected from the WBM-trained model onto the standard ATUS time-use file. Pre-2010 social context comes from <code>tuwho_code</code> in the who-file and is not directly comparable.
             </p>
             <div class="chart-wrap" style="height:220px;margin-top:0.8rem;"><canvas id="chElig"></canvas></div>
             <p style="font-size:0.72rem;color:var(--g400);margin-top:0.4rem;">
@@ -664,7 +672,7 @@ C.soc=new Chart(document.getElementById('chSocial'),{type:'bar',data:{labels:act
 C.ts=new Chart(document.getElementById('chTimeSeries'),{type:'line',data:{labels:D.yr,datasets:[{label:'How meaningful (purpose)',data:D.m,borderColor:M,backgroundColor:M+'12',fill:true,tension:0.3,pointRadius:2,pointHoverRadius:5,pointBackgroundColor:M,borderWidth:2.5},{label:'How happy (mood)',data:D.a,borderColor:BK,backgroundColor:'transparent',borderDash:[6,3],tension:0.3,pointRadius:2,pointHoverRadius:5,pointBackgroundColor:BK,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{padding:14,usePointStyle:true,color:BK}},tooltip:{callbacks:{afterBody:ctx=>ctx[0].dataIndex===17?'COVID-19 impact':''}}},scales:sc(null,'Score (0-10)',7.0,7.45)}});
 
 // 5. Alone share
-C.al=new Chart(document.getElementById('chAlone'),{type:'line',data:{labels:D.yr,datasets:[{label:'% of day spent with others',data:D.ss,borderColor:M,backgroundColor:M+'12',fill:true,tension:0.3,pointRadius:3,pointBackgroundColor:M,pointBorderColor:'#fff',pointBorderWidth:2,borderWidth:2.5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{afterBody:ctx=>{if(ctx[0].dataIndex===7)return'2010: survey method changed';if(ctx[0].dataIndex===17)return'COVID-19 disruption';return''}}}},scales:sc('Year','% of day with others',40,65)}});
+C.al=new Chart(document.getElementById('chAlone'),{type:'line',data:{labels:D.yr,datasets:[{label:'% of day spent with others',data:D.ss,borderColor:M,backgroundColor:M+'12',fill:true,tension:0.3,pointRadius:3,pointBackgroundColor:M,pointBorderColor:'#fff',pointBorderWidth:2,borderWidth:2.5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{afterBody:ctx=>{const i=ctx[0].dataIndex;if(i<7)return'Pre-2010: tuwho_code only; ~23% of minutes unclassified';if(i===7)return'2010: WBM fielded — wuinteract replaces tuwho_code';if(i===17)return'COVID-19 disruption';return''}}}},scales:sc('Year','% of day with others',40,65)}});
 
 // 6. Decomposition (hidden)
 C.dec=new Chart(document.getElementById('chDecomp'),{type:'bar',data:{labels:['Shifted to\nless meaningful\nactivities','More time\nalone','Solo time\nbecame less\nmeaningful','Small\nimprovement\ntogether','Residual','Total'],datasets:[{data:[-0.050,-0.068,-0.070,+0.002,+0.004,-0.114],backgroundColor:[NEG,NEG,NEG,POS,POS,M],borderRadius:4,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:sc(null,'Impact on meaning score',-0.13,0.02)}});
