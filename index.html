@@ -460,18 +460,18 @@
                     rose steadily from 2010 onward and accelerated through 2020.
                 </div>
                 <div style="background:#fff8ec;border:1px solid #f0d68a;border-left:3px solid #c25e9b;border-radius:6px;padding:0.55rem 0.7rem;margin:0.4rem 0 0.6rem;font-size:0.78rem;color:#404040;">
-                    <strong style="color:#111;">⚠ Data caveat — 2010 methodology break.</strong>
-                    The 2009→2010 jump is <em>not</em> behavioral. Pre-2010, ATUS captured social context only via <code>tuwho_code</code> (who was physically present), and BLS did not ask the question on ~23% of minutes (sleep, much of work, personal care). In 2010 BLS launched the Well-Being Module with <code>wuinteract</code>, which asks directly about interaction (including by phone) on every eligible activity. The "unknown" share collapsed from 23% to 1.3%, mechanically reclassifying minutes onto "with others." <strong>The real trend is the 2010→2024 decline (−8.4 pp).</strong>
+                    <strong style="color:#111;">⚠ Pre-2010 segment is logit-imputed.</strong>
+                    Before 2010, BLS skipped the "who were you with" question on ~14% of eligible minutes (<code>trwhona=1</code> — mostly work and some travel/eating). In 2010 BLS launched the Well-Being Module with <code>wuinteract</code>, which asks directly about interaction (including phone) on every activity. To preserve a 2003-start series we estimate a logit of <em>with-others</em> on activity tier × demographics using post-2010 data (n=2.95M episodes, pseudo-R²=0.124) and predict for the unasked pre-2010 minutes; observed minutes are kept as-is. The construct gap (<code>wuinteract</code> vs <code>tuwho_code</code>) averages 0.4&nbsp;pp across activities. After backfill, the 2009→2010 discontinuity drops from <strong>+17 pp to +1.7 pp</strong>; the 2003→2024 decline is <strong>−8.2 pp</strong>. Methods note: <code>docs/BACKFILL_METHODOLOGY.md</code>.
                 </div>
                 <div class="chart-wrap"><canvas id="chAlone"></canvas></div>
             </div>
             <div class="sidebar-panel">
                 <div class="sb">
-                    <div class="sb-title">Three-period story</div>
+                    <div class="sb-title">After backfill</div>
                     <p>
-                        <strong>2003–2009:</strong> co-presence only, 23% unclassified.<br>
-                        <strong>2010:</strong> WBM fielded, instrument changes.<br>
-                        <strong>2011–2024:</strong> consistent series — alone share rises from 39% to 47% (+8.6 pp).
+                        <strong>2003 → 2024:</strong> social time falls from ~60% to 52% (−8.2 pp over 22 years).<br>
+                        <strong>2009 → 2010 jump:</strong> shrinks from +17 pp to <strong>+1.7 pp</strong>.<br>
+                        <strong>By-activity rates</strong> are flat 2010–2019; COVID drives the 2020 step-down.
                     </p>
                 </div>
                 <div class="sb">
@@ -637,7 +637,11 @@ const D = {
     yr: ['2003','2004','2005','2006','2007','2008','2009','2010','2011','2012','2013','2014','2015','2016','2017','2018','2019','2020','2021','2022','2023','2024'],
     m: [7.206,7.195,7.194,7.194,7.193,7.179,7.172,7.173,7.166,7.162,7.168,7.153,7.145,7.150,7.140,7.128,7.120,7.038,7.055,7.074,7.070,7.092],
     a: [7.416,7.417,7.414,7.407,7.408,7.407,7.410,7.407,7.405,7.411,7.408,7.404,7.402,7.394,7.397,7.394,7.384,7.371,7.370,7.375,7.371,7.381],
+    // Headline series (post-2010 observed; pre-2010 raw co-presence floor with 23% unknown).
     ss:[45.1,44.7,45.1,43.6,43.0,42.8,43.5,60.5,60.5,61.0,60.8,60.8,59.7,59.1,59.2,58.4,57.0,51.8,51.8,53.0,51.7,52.1],
+    // Backfilled pre-2010 (logit-imputed for trwhona=1 minutes; deltas anchored at 2010 headline baseline).
+    // Source: analysis/backfill.py — yearly_with_others_backfilled.csv (Apr 2026).
+    ssBack:[60.0,59.67,60.5,60.02,59.44,59.04,58.76,60.5,60.5,61.0,60.8,60.8,59.7,59.1,59.2,58.4,57.0,51.8,51.8,53.0,51.7,52.1],
     mm:[6315,6303,6259,6268,6298,6260,6233,6229,6218,6212,6188,6158,6121,6162,6140,6136,6109,6013,6029,6010,5983,6024],
     em:[876,875,869,870,875,871,868,868,867,867,863,860,856,861,860,860,857,854,854,849,846,849]
 };
@@ -671,8 +675,13 @@ C.soc=new Chart(document.getElementById('chSocial'),{type:'bar',data:{labels:act
 // 4. Time series
 C.ts=new Chart(document.getElementById('chTimeSeries'),{type:'line',data:{labels:D.yr,datasets:[{label:'How meaningful (purpose)',data:D.m,borderColor:M,backgroundColor:M+'12',fill:true,tension:0.3,pointRadius:2,pointHoverRadius:5,pointBackgroundColor:M,borderWidth:2.5},{label:'How happy (mood)',data:D.a,borderColor:BK,backgroundColor:'transparent',borderDash:[6,3],tension:0.3,pointRadius:2,pointHoverRadius:5,pointBackgroundColor:BK,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{padding:14,usePointStyle:true,color:BK}},tooltip:{callbacks:{afterBody:ctx=>ctx[0].dataIndex===17?'COVID-19 impact':''}}},scales:sc(null,'Score (0-10)',7.0,7.45)}});
 
-// 5. Alone share
-C.al=new Chart(document.getElementById('chAlone'),{type:'line',data:{labels:D.yr,datasets:[{label:'% of day spent with others',data:D.ss,borderColor:M,backgroundColor:M+'12',fill:true,tension:0.3,pointRadius:3,pointBackgroundColor:M,pointBorderColor:'#fff',pointBorderWidth:2,borderWidth:2.5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{afterBody:ctx=>{const i=ctx[0].dataIndex;if(i<7)return'Pre-2010: tuwho_code only; ~23% of minutes unclassified';if(i===7)return'2010: WBM fielded — wuinteract replaces tuwho_code';if(i===17)return'COVID-19 disruption';return''}}}},scales:sc('Year','% of day with others',40,65)}});
+// 5. Alone share — backfilled pre-2010 (dashed) + observed post-2010 (solid)
+const _ssBackPre = D.ssBack.map((v,i)=>i<8?v:null);  // 2003..2010 dashed
+const _ssObsPost = D.ss.map((v,i)=>i>=7?v:null);     // 2010..2024 solid (overlap at 2010)
+C.al=new Chart(document.getElementById('chAlone'),{type:'line',data:{labels:D.yr,datasets:[
+    {label:'Backfilled (logit, pre-2010)',data:_ssBackPre,borderColor:M,backgroundColor:'transparent',borderDash:[6,4],tension:0.25,pointRadius:3,pointStyle:'rect',pointBackgroundColor:M,pointBorderColor:'#fff',pointBorderWidth:1.5,borderWidth:2},
+    {label:'Observed (2010+)',data:_ssObsPost,borderColor:M,backgroundColor:M+'12',fill:true,tension:0.3,pointRadius:3,pointBackgroundColor:M,pointBorderColor:'#fff',pointBorderWidth:2,borderWidth:2.5}
+]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{padding:14,usePointStyle:true,color:BK,font:{size:10}}},tooltip:{callbacks:{afterBody:ctx=>{const i=ctx[0].dataIndex;if(i<7)return'Logit-imputed (post-2010 model applied to ~14% of pre-2010 minutes)';if(i===7)return'2010: WBM fielded — wuinteract replaces tuwho_code';if(i===17)return'COVID-19 disruption';return''}}}},scales:sc('Year','% of day with others',55,65)}});
 
 // 6. Decomposition (hidden)
 C.dec=new Chart(document.getElementById('chDecomp'),{type:'bar',data:{labels:['Shifted to\nless meaningful\nactivities','More time\nalone','Solo time\nbecame less\nmeaningful','Small\nimprovement\ntogether','Residual','Total'],datasets:[{data:[-0.050,-0.068,-0.070,+0.002,+0.004,-0.114],backgroundColor:[NEG,NEG,NEG,POS,POS,M],borderRadius:4,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:sc(null,'Impact on meaning score',-0.13,0.02)}});
